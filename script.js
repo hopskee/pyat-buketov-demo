@@ -111,13 +111,14 @@
     $("[data-pm-text]").textContent = p.text;
     $("[data-pm-tg]").href = TG + "?text=" + encodeURIComponent("Здравствуйте! Хочу уточнить про букет «" + p.name + "» (" + money(p.price) + ").");
     modal.classList.add("is-on"); modal.setAttribute("aria-hidden", "false");
-    document.documentElement.classList.add("lock");
-    $(".modal-x").focus();
+    setLock();
+    $(".modal-x", modal).focus();
   }
   function closeModal() {
     if (!modal) return;
     modal.classList.remove("is-on"); modal.setAttribute("aria-hidden", "true");
-    document.documentElement.classList.remove("lock");
+    if (modal.querySelector(".modal-card")) modal.querySelector(".modal-card").style.transform = "";
+    setLock();
     if (lastFocus) lastFocus.focus();
   }
   $$("[data-close-modal]").forEach(function (b) { b.addEventListener("click", closeModal); });
@@ -127,6 +128,8 @@
   document.addEventListener("click", function (e) {
     var a = e.target.closest("[data-add]");
     if (a) { add(a.getAttribute("data-add")); return; }
+    var lb = e.target.closest("[data-lightbox]");
+    if (lb) { e.preventDefault(); openLightbox(lb.getAttribute("data-lightbox"), lb.getAttribute("data-lightbox-cap") || (lb.querySelector("img") && lb.querySelector("img").alt) || ""); return; }
     var o = e.target.closest("[data-open]");
     if (o) { openModal(o.getAttribute("data-open")); return; }
     var q = e.target.closest("[data-qty]");
@@ -137,18 +140,25 @@
   var drawer = $("#cart"), form = $("#checkout"), thanks = $("[data-thanks]");
   function openCart() {
     drawer.classList.add("is-on"); drawer.setAttribute("aria-hidden", "false");
-    document.body.classList.add("cart-open"); document.documentElement.classList.add("lock");
+    document.body.classList.add("cart-open");
+    setLock();
     if (thanks && !thanks.hidden && cart.length) thanks.hidden = true;
     if (toastEl) toastEl.classList.remove("is-on");
     paint();
   }
   function closeCart() {
     drawer.classList.remove("is-on"); drawer.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("cart-open"); document.documentElement.classList.remove("lock");
+    document.body.classList.remove("cart-open");
+    setLock();
   }
   $$("[data-open-cart]").forEach(function (b) { b.addEventListener("click", openCart); });
   $$("[data-close-cart]").forEach(function (b) { b.addEventListener("click", closeCart); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeCart(); closeModal(); } });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (lightbox && lightbox.classList.contains("is-on")) { closeLightbox(); return; }
+    if (modal && modal.classList.contains("is-on")) { closeModal(); return; }
+    closeCart();
+  });
 
   function paint() {
     var n = count(), sum = total();
@@ -238,6 +248,143 @@
       es.forEach(function (en) { if (en.isIntersecting) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } else v.pause(); });
     }).observe(v);
   });
+
+  /* ---------- lightbox ---------- */
+  var lightbox = $("#lightbox");
+  var lbLast = null;
+  function openLightbox(src, cap) {
+    if (!lightbox || !src) return;
+    if (modal && modal.classList.contains("is-on")) closeModal();
+    lbLast = document.activeElement;
+    $("[data-lb-img]").src = src;
+    $("[data-lb-img]").alt = cap || "";
+    var capEl = $("[data-lb-cap]");
+    if (capEl) capEl.textContent = cap || "";
+    lightbox.classList.add("is-on"); lightbox.setAttribute("aria-hidden", "false");
+    setLock();
+    var x = $(".lightbox-x", lightbox); if (x) x.focus();
+  }
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.remove("is-on"); lightbox.setAttribute("aria-hidden", "true");
+    var stage = $(".lightbox-stage"); if (stage) stage.style.transform = "";
+    setLock();
+    if (lbLast) lbLast.focus();
+  }
+  $$("[data-close-lightbox]").forEach(function (b) { b.addEventListener("click", closeLightbox); });
+
+  function setLock() {
+    var on = !!(
+      (modal && modal.classList.contains("is-on")) ||
+      (lightbox && lightbox.classList.contains("is-on")) ||
+      (drawer && drawer.classList.contains("is-on"))
+    );
+    document.documentElement.classList.toggle("lock", on);
+  }
+
+  function bindSwipeDown(el, closeFn) {
+    if (!el || !("ontouchstart" in window)) return;
+    var y0 = 0, x0 = 0, dy = 0, active = false, dragging = false;
+    el.addEventListener("touchstart", function (e) {
+      if (e.touches.length !== 1) return;
+      y0 = e.touches[0].clientY; x0 = e.touches[0].clientX; dy = 0; active = true; dragging = false;
+    }, { passive: true });
+    el.addEventListener("touchmove", function (e) {
+      if (!active) return;
+      dy = e.touches[0].clientY - y0;
+      var dx = e.touches[0].clientX - x0;
+      if (!dragging) {
+        if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) { active = false; return; }
+        if (dy > 10) dragging = true;
+        else if (dy < -10) { active = false; return; }
+        else return;
+      }
+      if (dy < 0) dy = 0;
+      el.style.transition = "none";
+      el.style.transform = "translateY(" + dy + "px)";
+    }, { passive: true });
+    function endSwipe() {
+      if (!active && !dragging) return;
+      el.style.transition = "";
+      if (dy > 80) closeFn();
+      el.style.transform = "";
+      active = false; dragging = false; dy = 0;
+    }
+    el.addEventListener("touchend", endSwipe);
+    el.addEventListener("touchcancel", endSwipe);
+  }
+  bindSwipeDown($(".lightbox-stage"), closeLightbox);
+  bindSwipeDown($(".modal-card"), closeModal);
+
+  /* ---------- background music ---------- */
+  var MUSIC_KEY = "pb-music-on", MUSIC_VOL = 0.35;
+  var musicBtn = $("[data-music-btn]");
+  var musicWanted = false;
+  try { musicWanted = localStorage.getItem(MUSIC_KEY) === "1"; } catch (e) {}
+  var music = new Audio("assets/audio/bg.mp3");
+  music.loop = true;
+  music.preload = musicWanted ? "auto" : "metadata";
+  music.volume = 0;
+  var fadeId = 0, musicGen = 0;
+  function fadeVolume(to, ms, done) {
+    cancelAnimationFrame(fadeId);
+    var from = music.volume, t0 = performance.now();
+    (function step(now) {
+      var k = ms <= 0 ? 1 : Math.min(1, (now - t0) / ms);
+      var v = from + (to - from) * k;
+      music.volume = v < 0 ? 0 : (v > 1 ? 1 : v);
+      if (k < 1) fadeId = requestAnimationFrame(step);
+      else { music.volume = to; if (done) done(); }
+    })(t0);
+  }
+  function setMusicUi(playing) {
+    if (!musicBtn) return;
+    musicBtn.classList.toggle("is-playing", !!playing);
+    musicBtn.setAttribute("aria-pressed", musicWanted ? "true" : "false");
+    musicBtn.setAttribute("aria-label", musicWanted ? "Выключить музыку" : "Включить музыку");
+  }
+  function startMusic() {
+    var gen = ++musicGen;
+    var play = music.play();
+    function go() { if (gen !== musicGen) return; fadeVolume(MUSIC_VOL, 400); setMusicUi(true); }
+    if (play && play.then) play.then(go).catch(function () { if (gen === musicGen) setMusicUi(false); });
+    else go();
+  }
+  function stopMusic() {
+    var gen = ++musicGen;
+    fadeVolume(0, 280, function () { if (gen === musicGen) music.pause(); });
+    setMusicUi(false);
+  }
+  function saveMusic(on) {
+    musicWanted = on;
+    try { localStorage.setItem(MUSIC_KEY, on ? "1" : "0"); } catch (e) {}
+  }
+  if (musicBtn) {
+    setMusicUi(false);
+    musicBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (musicWanted && !music.paused && music.volume > 0) {
+        saveMusic(false); stopMusic();
+      } else if (musicWanted && (music.paused || music.ended)) {
+        /* pending resume: user turned it off before first gesture */
+        saveMusic(false); setMusicUi(false);
+      } else {
+        saveMusic(true); startMusic();
+      }
+    });
+  }
+  if (musicWanted) {
+    var resume = function (e) {
+      if (!musicWanted) return;
+      if (e && e.target && e.target.closest && e.target.closest("[data-music-btn]")) return;
+      if (!music.paused) return;
+      startMusic();
+      document.removeEventListener("pointerdown", resume, true);
+      document.removeEventListener("keydown", resume, true);
+    };
+    document.addEventListener("pointerdown", resume, true);
+    document.addEventListener("keydown", resume, true);
+  }
 
   paint();
 })();
