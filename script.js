@@ -1,384 +1,234 @@
 (function () {
-  const PRODUCTS = [
-    { id: "nezhnyy", name: "Нежный", price: 3900, image: "assets/bouquet-ranunculus.jpg", text: "Ранункулюсы в мягких розовых тонах", kind: "bouquet" },
-    { id: "korobka", name: "Коробка", price: 5400, image: "assets/bouquet-box.jpg", text: "Авторская композиция в коробке", kind: "box" },
-    { id: "siren", name: "Сирень", price: 6500, image: "assets/bouquet-lilac.jpg", text: "Розы, эустома и фрезия", kind: "bouquet" },
-    { id: "avtorskiy", name: "Авторский", price: 7800, image: "assets/hero-bouquet.jpg", text: "Сборный букет с сезонными цветами и ягодами", kind: "bouquet" },
-    { id: "gerbera", name: "Гербера", price: 3200, image: "assets/bouquet-gerbera.jpg", text: "Яркая розовая гербера", kind: "bouquet" },
-    { id: "yagodnyy", name: "Ягодный", price: 6900, image: "assets/bouquet-berry.jpg", text: "Розы, ранункулюсы и ягоды в коробке", kind: "box" },
-    { id: "alyy", name: "Алый", price: 8500, image: "assets/bouquet-roses.jpg", text: "Пышная композиция из красных роз", kind: "bouquet" },
-    { id: "prazdnichnyy", name: "Праздничный", price: 12500, image: "assets/bouquet-berry.jpg", text: "Пышная праздничная композиция в коробке", kind: "box" },
-    { id: "premium", name: "Премиум", price: 16900, image: "assets/hero-bouquet.jpg", text: "Большой авторский букет на торжество", kind: "bouquet" }
+  "use strict";
+  var TG = "https://t.me/BUKETOV5";
+  var PRODUCTS = [
+    { id: "autumn-basket", name: "Осенняя корзина", price: 14500, kind: "basket", tag: "Хит", image: "assets/photos/autumn-basket.jpg", text: "Большая корзина: георгины, дельфиниум, кустовые розы, подсолнухи и сухоцветы." },
+    { id: "kristina-roses", name: "Облако роз", price: 16900, kind: "bouquet", tag: "Для особого дня", image: "assets/photos/kristina-roses.jpg", text: "Огромный букет из розовых и персиковых кустовых роз — эффект «вау» гарантирован." },
+    { id: "berry-box", name: "Зимняя шкатулка", price: 9800, kind: "box", tag: "Новинка", image: "assets/photos/berry-box.jpg", text: "Бархатная коробка с хризантемами, розами, ягодами илекса и хвоей." },
+    { id: "dahlia-garden", name: "Сад георгинов", price: 7800, kind: "bouquet", tag: "Хит", image: "assets/photos/dahlia-garden.jpg", text: "Георгины, эустома, гвоздики и зелень — яркий садовый букет." },
+    { id: "kristina-coat", name: "Пудровый сад", price: 8500, kind: "bouquet", tag: "", image: "assets/photos/kristina-coat.jpg", text: "Садовые розы, хризантемы и гвоздики в пудрово-малиновой гамме." },
+    { id: "kristina-basket", name: "Розовая корзина", price: 12500, kind: "basket", tag: "", image: "assets/photos/kristina-basket.jpg", text: "Корзина с розовыми георгинами, гвоздиками и эрингиумом, с атласной лентой." },
+    { id: "coral-bouquet", name: "Коралловый", price: 6500, kind: "bouquet", tag: "", image: "assets/photos/coral-bouquet.jpg", text: "Коралловые садовые розы, лилии и белая эустома в нежной ленте." },
+    { id: "dahlia-orange", name: "Солнечные георгины", price: 5400, kind: "bouquet", tag: "", image: "assets/photos/dahlia-orange.jpg", text: "Оранжевые и жёлтые георгины, зелёные шары диантуса и декоративная капуста." },
+    { id: "peach-ilex", name: "Персиковый", price: 3900, kind: "bouquet", tag: "", image: "assets/photos/peach-ilex.jpg", text: "Персиковые розы, антуриум и ягоды илекса — тёплый осенний букет." }
   ];
-  const TG = "https://t.me/BUKETOV5";
-  const money = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " р.";
+  var FILTERS = { "all": [0, Infinity], "0-4": [0, 3999], "4-7": [4000, 6999], "7-10": [7000, 9999], "10-15": [10000, 14999], "15-99": [15000, Infinity] };
+  var KIND = { bouquet: "Букет", basket: "Корзина", box: "Коробка" };
+  var money = function (n) { return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") + "\u00a0₽"; };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var byId = function (id) { return PRODUCTS.find(function (p) { return p.id === id; }); };
 
-  const FILTERS = {
-    "all":  { min: 0, max: Infinity },
-    "0-4":  { min: 0, max: 3999 },
-    "4-7":  { min: 4000, max: 6999 },
-    "7-10": { min: 7000, max: 9999 },
-    "10-15":{ min: 10000, max: 14999 },
-    "15-20":{ min: 15000, max: 19999 }
-  };
-  const BOX_IDS = new Set(["korobka", "yagodnyy", "prazdnichnyy"]);
+  /* ---------- cart storage ---------- */
+  var KEY = "pb-cart-v2";
+  var cart = [];
+  try { cart = JSON.parse(localStorage.getItem(KEY) || "[]").filter(function (i) { return byId(i.id); }); } catch (e) { cart = []; }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) {} }
+  function count() { return cart.reduce(function (s, i) { return s + i.qty; }, 0); }
+  function total() { return cart.reduce(function (s, i) { return s + byId(i.id).price * i.qty; }, 0); }
 
-  const grid = document.querySelector("[data-catalog]");
-  const defaultLimit = grid ? Number(grid.getAttribute("data-limit") || PRODUCTS.length) : PRODUCTS.length;
-  let currentFilter = "all";
-  let currentKind = "all";
-  let currentSort = "new";
-
-  function productById(id) { return PRODUCTS.find((p) => p.id === id); }
-
-  function cardHTML(p) {
-    return `<article class="card" data-id="${p.id}">
-      <button class="card-photo js-buy" type="button" data-id="${p.id}" aria-label="Открыть ${p.name}">
-        <img src="${p.image}" alt="${p.name}" width="600" height="600">
-      </button>
-      <div class="card-body">
-        <h3>${p.name}</h3>
-        <div class="card-price">${money(p.price)}</div>
-        <button class="btn btn-cart js-add" type="button" data-id="${p.id}">В корзину</button>
-      </div>
-    </article>`;
+  function add(id) {
+    var it = cart.find(function (i) { return i.id === id; });
+    if (it) it.qty++; else cart.push({ id: id, qty: 1 });
+    save(); paint();
+    $$("[data-cart-count]").forEach(function (b) { b.classList.remove("bump"); void b.offsetWidth; b.classList.add("bump"); });
+    toast("«" + byId(id).name + "» в корзине", true);
+  }
+  function setQty(id, d) {
+    var it = cart.find(function (i) { return i.id === id; });
+    if (!it) return;
+    it.qty += d;
+    if (it.qty <= 0) cart = cart.filter(function (i) { return i.id !== id; });
+    save(); paint();
   }
 
-  function filteredProducts() {
-    const range = FILTERS[currentFilter] || FILTERS.all;
-    const list = PRODUCTS.filter((p) => {
-      if (p.price < range.min || p.price > range.max) return false;
-      const isBox = p.kind === "box" || BOX_IDS.has(p.id);
-      if (currentKind === "box" && !isBox) return false;
-      if (currentKind === "bouquet" && isBox) return false;
-      return true;
-    });
-    if (currentSort === "price-asc") return list.slice().sort((a, b) => a.price - b.price);
-    if (currentSort === "price-desc") return list.slice().sort((a, b) => b.price - a.price);
-    return list;
+  /* ---------- cards ---------- */
+  function card(p, lazy) {
+    return '<article class="card reveal" id="' + p.id + '">' +
+      '<button class="card-photo" type="button" data-open="' + p.id + '" aria-label="Подробнее: ' + p.name + '">' +
+        '<img src="' + p.image + '" alt="' + p.name + ' — ' + p.text.split(" — ")[0] + '" width="900" height="1200"' + (lazy ? ' loading="lazy"' : "") + '>' +
+        (p.tag ? '<span class="card-tag">' + p.tag + "</span>" : "") +
+        '<span class="card-more">Подробнее</span>' +
+      "</button>" +
+      '<div class="card-body">' +
+        '<p class="card-kind">' + KIND[p.kind] + "</p>" +
+        "<h3>" + p.name + "</h3>" +
+        '<div class="card-foot"><span class="card-price">' + money(p.price) + "</span>" +
+        '<button class="card-add" type="button" data-add="' + p.id + '" aria-label="В корзину: ' + p.name + '"><svg><use href="#i-bag"/></svg><span>В корзину</span></button></div>' +
+      "</div></article>";
   }
 
-  function renderCarousel() {
-    const el = document.querySelector("[data-carousel]");
-    if (!el) return;
-    const ids = (el.getAttribute("data-ids") || "").split(",").map((s) => s.trim()).filter(Boolean);
-    const list = (ids.length ? ids.map(productById).filter(Boolean) : PRODUCTS.slice(0, 4));
-    el.innerHTML = list.map(cardHTML).join("");
+  var hits = $("[data-hits]");
+  if (hits) {
+    hits.innerHTML = ["autumn-basket", "berry-box", "dahlia-garden", "kristina-coat", "coral-bouquet", "dahlia-orange"]
+      .map(function (id) { return card(byId(id), true); }).join("");
   }
 
-  function scrollCarousel(dir) {
-    const el = document.querySelector("[data-carousel]");
-    if (!el) return;
-    const step = Math.max(240, Math.round(el.clientWidth * 0.8));
-    el.scrollBy({ left: dir * step, behavior: "smooth" });
-  }
-
+  var grid = $("[data-catalog]");
+  var state = { filter: "all", kind: "all", sort: "popular" };
   function renderGrid() {
     if (!grid) return;
-    const list = filteredProducts();
-    const useLimit = currentFilter === "all" && currentKind === "all" && defaultLimit < PRODUCTS.length;
-    const shown = useLimit ? list.slice(0, defaultLimit) : list;
-    grid.innerHTML = shown.map(cardHTML).join("");
-    const empty = document.querySelector(".catalog-empty");
-    if (empty) empty.classList.toggle("is-on", shown.length === 0);
-    const more = document.querySelector(".catalog-more");
-    if (more) more.style.display = useLimit && list.length > defaultLimit ? "" : "none";
-  }
-
-  function setFilter(id) {
-    if (!FILTERS[id]) return;
-    currentFilter = id;
-    document.querySelectorAll("[data-filter]").forEach((el) => {
-      const on = el.getAttribute("data-filter") === id;
-      el.classList.toggle("is-on", on);
-      el.setAttribute("aria-pressed", on ? "true" : "false");
+    var r = FILTERS[state.filter];
+    var list = PRODUCTS.filter(function (p) {
+      return p.price >= r[0] && p.price <= r[1] && (state.kind === "all" || (state.kind === "bouquet" ? p.kind === "bouquet" : p.kind !== "bouquet"));
     });
-    renderGrid();
-  renderCarousel();
-
-  const params = new URLSearchParams(location.search);
-  if (params.get("filter")) setFilter(params.get("filter"));
-  if (params.get("kind")) setKind(params.get("kind"));
-  if (params.get("sort")) currentSort = params.get("sort");
-  const sortEl = document.querySelector("[data-sort]");
-  if (sortEl) {
-    if (currentSort) sortEl.value = currentSort;
-    sortEl.addEventListener("change", () => {
-      currentSort = sortEl.value;
+    if (state.sort === "price-asc") list.sort(function (a, b) { return a.price - b.price; });
+    if (state.sort === "price-desc") list.sort(function (a, b) { return b.price - a.price; });
+    grid.innerHTML = list.map(function (p, i) { return card(p, i > 3); }).join("");
+    $("[data-grid-empty]").hidden = list.length > 0;
+    var n = list.length, w = n % 10 === 1 && n % 100 !== 11 ? "букет" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "букета" : "букетов");
+    $("[data-count]").textContent = n + " " + w;
+    observe(grid);
+  }
+  $$("[data-filter]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.filter = b.getAttribute("data-filter");
+      $$("[data-filter]").forEach(function (x) { x.classList.toggle("is-on", x === b); });
       renderGrid();
     });
-    if (params.get("sort")) renderGrid();
-  }
-
-  }
-
-  function setKind(kind) {
-    currentKind = kind;
-    document.querySelectorAll("[data-kind]").forEach((el) => {
-      const on = el.getAttribute("data-kind") === kind;
-      el.classList.toggle("is-on", on);
-      el.setAttribute("aria-pressed", on ? "true" : "false");
-    });
-    renderGrid();
-  renderCarousel();
-
-  const params = new URLSearchParams(location.search);
-  if (params.get("filter")) setFilter(params.get("filter"));
-  if (params.get("kind")) setKind(params.get("kind"));
-  if (params.get("sort")) currentSort = params.get("sort");
-  const sortEl = document.querySelector("[data-sort]");
-  if (sortEl) {
-    if (currentSort) sortEl.value = currentSort;
-    sortEl.addEventListener("change", () => {
-      currentSort = sortEl.value;
+  });
+  $$("[data-kind]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      state.kind = b.getAttribute("data-kind");
+      $$("[data-kind]").forEach(function (x) { x.classList.toggle("is-on", x === b); });
       renderGrid();
     });
-    if (params.get("sort")) renderGrid();
-  }
+  });
+  var sortSel = $("[data-sort]");
+  if (sortSel) sortSel.addEventListener("change", function () { state.sort = sortSel.value; renderGrid(); });
 
-  }
-
-  renderGrid();
-  renderCarousel();
-
-  const params = new URLSearchParams(location.search);
-  if (params.get("filter")) setFilter(params.get("filter"));
-  if (params.get("kind")) setKind(params.get("kind"));
-  if (params.get("sort")) currentSort = params.get("sort");
-  const sortEl = document.querySelector("[data-sort]");
-  if (sortEl) {
-    if (currentSort) sortEl.value = currentSort;
-    sortEl.addEventListener("change", () => {
-      currentSort = sortEl.value;
-      renderGrid();
-    });
-    if (params.get("sort")) renderGrid();
-  }
-
-
-  /* Cart */
-  const storageKey = "pyat-buketov-cart";
-  const loadCart = () => {
-    try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); }
-    catch { return []; }
-  };
-  const saveCart = (c) => localStorage.setItem(storageKey, JSON.stringify(c));
-  let cart = loadCart();
-
-  const countEl = document.querySelector(".cart-count");
-  const drawer = document.getElementById("cart-drawer");
-  const overlay = document.getElementById("overlay");
-  const popup = document.getElementById("product-popup");
-  const drawerBody = document.getElementById("cart-items");
-  const totalEl = document.getElementById("cart-total");
-  const checkout = document.getElementById("checkout") || document.getElementById("checkout-form");
-  const thanks = document.getElementById("thanks");
-
-  function qtyOf() { return cart.reduce((s, i) => s + i.qty, 0); }
-  function sumOf() { return cart.reduce((s, i) => s + i.qty * i.price, 0); }
-
-  function paintCount() {
-    const n = qtyOf();
-    document.querySelectorAll(".cart-count").forEach((el) => {
-      el.textContent = n;
-      el.classList.toggle("is-on", n > 0);
-    });
-    document.querySelectorAll("[data-cart-sum]").forEach((el) => {
-      el.textContent = n ? money(sumOf()) : "";
-    });
-  }
-
-  function paintCart() {
-    paintCount();
-    if (!drawerBody) return;
-    if (!cart.length) {
-      drawerBody.innerHTML = '<p class="cart-empty">Корзина пуста</p>';
-    } else {
-      drawerBody.innerHTML = cart.map((i) => {
-        const p = productById(i.id);
-        return `<div class="cart-row">
-          <img src="${p ? p.image : ""}" alt="">
-          <div>
-            <h4>${i.name}</h4>
-            <div class="meta">${i.qty} × ${money(i.price)}</div>
-            <button class="cart-remove" type="button" data-remove="${i.id}">Удалить</button>
-          </div>
-          <div>${money(i.qty * i.price)}</div>
-        </div>`;
-      }).join("");
-    }
-    if (totalEl) totalEl.textContent = money(sumOf());
-  }
-
-  function addToCart(id, qty) {
-    const p = productById(id);
+  /* ---------- product modal ---------- */
+  var modal = $("#product-modal"), current = null, lastFocus = null;
+  function openModal(id) {
+    var p = byId(id);
     if (!p) return;
-    const row = cart.find((i) => i.id === id);
-    if (row) row.qty += qty;
-    else cart.push({ id: p.id, name: p.name, price: p.price, qty: qty });
-    saveCart(cart);
-    paintCart();
+    if (!modal) { location.href = "shop.html#" + id; return; }
+    current = p; lastFocus = document.activeElement;
+    $("[data-pm-img]").src = p.image; $("[data-pm-img]").alt = p.name;
+    $("[data-pm-kind]").textContent = KIND[p.kind];
+    $("[data-pm-name]").textContent = p.name;
+    $("[data-pm-price]").textContent = money(p.price);
+    $("[data-pm-text]").textContent = p.text;
+    $("[data-pm-tg]").href = TG + "?text=" + encodeURIComponent("Здравствуйте! Хочу уточнить про букет «" + p.name + "» (" + money(p.price) + ").");
+    modal.classList.add("is-on"); modal.setAttribute("aria-hidden", "false");
+    document.documentElement.classList.add("lock");
+    $(".modal-x").focus();
   }
-
-  function openDrawer() {
-    if (checkout) checkout.classList.remove("is-on");
-    if (thanks) thanks.classList.remove("is-on");
-    drawer.classList.add("is-open");
-    overlay.classList.add("is-open");
-    overlay.dataset.mode = "cart";
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove("is-on"); modal.setAttribute("aria-hidden", "true");
+    document.documentElement.classList.remove("lock");
+    if (lastFocus) lastFocus.focus();
   }
-  function closeAll() {
-    drawer.classList.remove("is-open");
-    overlay.classList.remove("is-open");
-    popup.classList.remove("is-open");
-    closeFilters();
-    delete overlay.dataset.mode;
-  }
+  $$("[data-close-modal]").forEach(function (b) { b.addEventListener("click", closeModal); });
+  var pmAdd = $("[data-pm-add]");
+  if (pmAdd) pmAdd.addEventListener("click", function () { if (current) { add(current.id); closeModal(); } });
 
-  let popupQty = 1;
-  let popupId = null;
-
-  function openPopup(id) {
-    const p = productById(id);
-    if (!p) return;
-    popupId = id;
-    popupQty = 1;
-    popup.querySelector("[data-pp-img]").src = p.image;
-    popup.querySelector("[data-pp-img]").alt = p.name;
-    popup.querySelector("[data-pp-name]").textContent = p.name;
-    popup.querySelector("[data-pp-text]").textContent = p.text;
-    popup.querySelector("[data-pp-price]").textContent = money(p.price);
-    popup.querySelector("[data-pp-qty]").textContent = "1";
-    popup.classList.add("is-open");
-    overlay.classList.add("is-open");
-    overlay.dataset.mode = "popup";
-  }
-
-  const toastEl = document.getElementById("toast");
-  let toastTimer;
-  function toast(msg) {
-    if (!toastEl) return;
-    toastEl.textContent = msg;
-    toastEl.classList.add("is-on");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove("is-on"), 1800);
-  }
-
-  const filtersPanel = document.getElementById("filters-panel");
-  function openFilters() {
-    if (!filtersPanel) return;
-    filtersPanel.classList.add("is-open");
-    overlay.classList.add("is-open");
-    overlay.dataset.mode = "filters";
-  }
-  function closeFilters() {
-    if (filtersPanel) filtersPanel.classList.remove("is-open");
-  }
-
-  document.addEventListener("click", (e) => {
-    const chip = e.target.closest("[data-filter]");
-    if (chip) { setFilter(chip.getAttribute("data-filter")); return; }
-    const kindBtn = e.target.closest("[data-kind]");
-    if (kindBtn) { setKind(kindBtn.getAttribute("data-kind")); return; }
-    if (e.target.closest("[data-open-filters]")) { openFilters(); return; }
-    if (e.target.closest("[data-close-filters]")) { closeFilters(); overlay.classList.remove("is-open"); delete overlay.dataset.mode; return; }
-    if (e.target.closest("[data-reset-filters]")) { setFilter("all"); setKind("all"); return; }
-    if (e.target.closest("[data-carousel-prev]")) { scrollCarousel(-1); return; }
-    if (e.target.closest("[data-carousel-next]")) { scrollCarousel(1); return; }
-
-    const add = e.target.closest(".js-add");
-    if (add) {
-      const p = productById(add.dataset.id);
-      addToCart(add.dataset.id, 1);
-      if (p) toast(p.name + " — в корзине");
-      return;
-    }
-    const buy = e.target.closest(".js-buy");
-    if (buy) { openPopup(buy.dataset.id); return; }
-
-    if (e.target.closest("[data-open-cart]")) { paintCart(); openDrawer(); return; }
-    if (e.target.closest("[data-close]")) { closeAll(); return; }
-    if (e.target === overlay || e.target.id === "product-popup") {
-      closeAll();
-      return;
-    }
-    if (e.target.closest("[data-pp-plus]")) {
-      popupQty += 1;
-      popup.querySelector("[data-pp-qty]").textContent = String(popupQty);
-      return;
-    }
-    if (e.target.closest("[data-pp-minus]")) {
-      popupQty = Math.max(1, popupQty - 1);
-      popup.querySelector("[data-pp-qty]").textContent = String(popupQty);
-      return;
-    }
-    if (e.target.closest("[data-pp-add]")) {
-      const p = productById(popupId);
-      addToCart(popupId, popupQty);
-      popup.classList.remove("is-open");
-      if (p) toast(p.name + " — в корзине");
-      openDrawer();
-      return;
-    }
-    const rm = e.target.closest("[data-remove]");
-    if (rm) {
-      cart = cart.filter((i) => i.id !== rm.dataset.remove);
-      saveCart(cart);
-      paintCart();
-      return;
-    }
-    if (e.target.closest("[data-checkout]")) {
-      if (!cart.length) return;
-      checkout.classList.add("is-on");
-      return;
-    }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest("[data-add]");
+    if (a) { add(a.getAttribute("data-add")); return; }
+    var o = e.target.closest("[data-open]");
+    if (o) { openModal(o.getAttribute("data-open")); return; }
+    var q = e.target.closest("[data-qty]");
+    if (q) { setQty(q.getAttribute("data-id"), Number(q.getAttribute("data-qty"))); }
   });
 
-  const checkoutForm = document.getElementById("checkout-form") || checkout;
-  if (checkoutForm) {
-    checkoutForm.addEventListener("submit", (ev) => {
-      ev.preventDefault();
-      const fd = new FormData(checkoutForm);
-      const name = (fd.get("name") || "").toString().trim();
-      const contact = (fd.get("contact") || "").toString().trim();
-      const comment = (fd.get("comment") || "").toString().trim();
-      const lines = cart.map((i) => `• ${i.name} × ${i.qty} — ${money(i.qty * i.price)}`);
-      const text = encodeURIComponent(
-        `Здравствуйте! Хочу оформить заказ в «Пять Букетов».\n\n${lines.join("\n")}\n\nИтого: ${money(sumOf())}\nИмя: ${name}\nСвязь: ${contact}${comment ? "\nКомментарий: " + comment : ""}`
-      );
-      const link = document.getElementById("thanks-link");
-      if (link) link.href = `${TG}?text=${text}`;
-      checkout.classList.remove("is-on");
-      thanks.classList.add("is-on");
-      cart = [];
-      saveCart(cart);
-      paintCart();
+  /* ---------- cart drawer ---------- */
+  var drawer = $("#cart"), form = $("#checkout"), thanks = $("[data-thanks]");
+  function openCart() {
+    drawer.classList.add("is-on"); drawer.setAttribute("aria-hidden", "false");
+    document.body.classList.add("cart-open"); document.documentElement.classList.add("lock");
+    if (thanks && !thanks.hidden && cart.length) thanks.hidden = true;
+    if (toastEl) toastEl.classList.remove("is-on");
+    paint();
+  }
+  function closeCart() {
+    drawer.classList.remove("is-on"); drawer.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("cart-open"); document.documentElement.classList.remove("lock");
+  }
+  $$("[data-open-cart]").forEach(function (b) { b.addEventListener("click", openCart); });
+  $$("[data-close-cart]").forEach(function (b) { b.addEventListener("click", closeCart); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeCart(); closeModal(); } });
+
+  function paint() {
+    var n = count(), sum = total();
+    $$("[data-cart-count]").forEach(function (b) { b.textContent = n; b.classList.toggle("is-on", n > 0); });
+    $$("[data-cart-sum]").forEach(function (b) { b.textContent = n ? money(sum) : "Корзина"; });
+    var list = $("[data-cart-list]");
+    if (!list) return;
+    var showThanks = thanks && !thanks.hidden;
+    $("[data-cart-empty]").hidden = n > 0 || showThanks;
+    form.hidden = n === 0 || showThanks;
+    list.innerHTML = cart.map(function (i) {
+      var p = byId(i.id);
+      return '<li class="cart-item"><img src="' + p.image + '" alt="" width="64" height="80">' +
+        '<div class="ci-info"><b>' + p.name + "</b><span>" + money(p.price) + "</span></div>" +
+        '<div class="qty"><button type="button" data-qty="-1" data-id="' + p.id + '" aria-label="Меньше">−</button><span>' + i.qty +
+        '</span><button type="button" data-qty="1" data-id="' + p.id + '" aria-label="Больше">+</button></div></li>';
+    }).join("");
+    $("[data-cart-total]").textContent = money(sum);
+  }
+
+  if (form) form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var fd = new FormData(form);
+    var v = function (k) { return (fd.get(k) || "").toString().trim(); };
+    var lines = cart.map(function (i) { var p = byId(i.id); return "• " + p.name + " × " + i.qty + " — " + money(p.price * i.qty); });
+    var msg = "Здравствуйте! Хочу заказать в «Пять Букетов»:\n\n" + lines.join("\n") +
+      "\n\nИтого: " + money(total()) + "\nИмя: " + v("name") + "\nКонтакт: " + v("contact") +
+      (v("when") ? "\nДоставка: " + v("when") : "") + (v("comment") ? "\nПожелания: " + v("comment") : "");
+    var url = TG + "?text=" + encodeURIComponent(msg);
+    $("[data-thanks-link]").href = url;
+    window.open(url, "_blank", "noopener");
+    cart = []; save(); form.reset();
+    thanks.hidden = false; paint();
+  });
+
+  /* ---------- toast ---------- */
+  var toastEl = $("#toast"), tt;
+  function toast(t, withCart) {
+    if (!toastEl) return;
+    toastEl.innerHTML = "<span>" + t + "</span>" + (withCart ? '<button type="button" data-open-cart-toast>Открыть</button>' : "");
+    var b = $("[data-open-cart-toast]", toastEl);
+    if (b) b.addEventListener("click", openCart);
+    toastEl.classList.add("is-on");
+    clearTimeout(tt); tt = setTimeout(function () { toastEl.classList.remove("is-on"); }, 2600);
+  }
+
+  /* ---------- header on scroll ---------- */
+  var header = $(".header");
+  function onScroll() { header.classList.toggle("is-scrolled", window.scrollY > 10); }
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+
+  /* ---------- reveal ---------- */
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("is-in"); io.unobserve(en.target); } });
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 }) : null;
+  function observe(root) {
+    $$(".reveal:not(.is-in)", root).forEach(function (el, i) {
+      el.style.transitionDelay = (i % 4) * 70 + "ms";
+      if (io) io.observe(el); else el.classList.add("is-in");
     });
   }
+  document.documentElement.classList.add("js");
+  renderGrid();
+  observe(document);
 
-  const customForm = document.getElementById("custom-form");
-  if (customForm) {
-    customForm.addEventListener("submit", (ev) => {
-      ev.preventDefault();
-      const fd = new FormData(customForm);
-      const text = encodeURIComponent(
-        `Здравствуйте! Хочу заказать букет по описанию.\n\nИмя: ${(fd.get("name") || "").toString().trim()}\nСвязь: ${(fd.get("contact") || "").toString().trim()}\nПожелания: ${(fd.get("wish") || "").toString().trim()}`
-      );
-      window.open(`${TG}?text=${text}`, "_blank", "noopener");
-      customForm.reset();
-      const ok = document.getElementById("custom-ok");
-      if (ok) { ok.hidden = false; }
-    });
+  /* deep link from home: shop.html#id → open product */
+  if (modal && location.hash && byId(location.hash.slice(1))) {
+    setTimeout(function () { openModal(location.hash.slice(1)); }, 300);
   }
 
-  const tog = document.querySelector(".nav-toggle");
-  const header = document.querySelector(".header");
-  if (tog && header) {
-    tog.addEventListener("click", () => header.classList.toggle("is-open"));
-  }
+  /* pause hero video when off-screen / reduced motion */
+  var vids = $$("video");
+  var rm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  vids.forEach(function (v) {
+    if (rm) { v.removeAttribute("autoplay"); v.pause(); return; }
+    if (!io) return;
+    new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) { var pr = v.play(); if (pr && pr.catch) pr.catch(function () {}); } else v.pause(); });
+    }).observe(v);
+  });
 
-  const toTop = document.querySelector(".to-top");
-  if (toTop) toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-
-  paintCart();
+  paint();
 })();
