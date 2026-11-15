@@ -104,7 +104,19 @@
     if (!p) return;
     if (!modal) { location.href = "shop.html#" + id; return; }
     current = p; lastFocus = document.activeElement;
-    $("[data-pm-img]").src = p.image; $("[data-pm-img]").alt = p.name;
+    var pmImg = $("[data-pm-img]"), pmBox = pmImg && pmImg.closest(".modal-photo");
+    function applyPmPhoto() {
+      if (!pmImg || !pmImg.naturalWidth) return;
+      if (pmBox) {
+        pmBox.style.setProperty("--pm-ratio", pmImg.naturalWidth + " / " + pmImg.naturalHeight);
+        pmBox.style.setProperty("--pm-r", String(pmImg.naturalWidth / pmImg.naturalHeight));
+        pmBox.style.setProperty("--pm-bg", 'url("' + (pmImg.currentSrc || pmImg.src).replace(/"/g, "") + '")');
+      }
+    }
+    pmImg.onload = applyPmPhoto;
+    pmImg.alt = p.name;
+    pmImg.src = p.image;
+    if (pmImg.complete) applyPmPhoto();
     $("[data-pm-kind]").textContent = KIND[p.kind];
     $("[data-pm-name]").textContent = p.name;
     $("[data-pm-price]").textContent = money(p.price);
@@ -128,6 +140,11 @@
   document.addEventListener("click", function (e) {
     var a = e.target.closest("[data-add]");
     if (a) { add(a.getAttribute("data-add")); return; }
+    var zoom = e.target.closest("[data-pm-zoom]");
+    if (zoom && current && modal && modal.classList.contains("is-on")) {
+      openLightbox(current.image, current.name);
+      return;
+    }
     var lb = e.target.closest("[data-lightbox]");
     if (lb) { e.preventDefault(); openLightbox(lb.getAttribute("data-lightbox"), lb.getAttribute("data-lightbox-cap") || (lb.querySelector("img") && lb.querySelector("img").alt) || ""); return; }
     var o = e.target.closest("[data-open]");
@@ -254,7 +271,6 @@
   var lbLast = null;
   function openLightbox(src, cap) {
     if (!lightbox || !src) return;
-    if (modal && modal.classList.contains("is-on")) closeModal();
     lbLast = document.activeElement;
     $("[data-lb-img]").src = src;
     $("[data-lb-img]").alt = cap || "";

@@ -119,7 +119,9 @@
   <div class="modal-shade" data-close-modal></div>
   <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="pm-title">
     <button class="icon-btn modal-x" type="button" data-close-modal aria-label="Закрыть"><svg><use href="#i-close"/></svg></button>
-    <div class="modal-photo"><img data-pm-img src="" alt=""></div>
+    <button class="modal-photo" type="button" data-pm-zoom aria-label="Открыть фото полностью">
+      <img data-pm-img src="" alt="">
+    </button>
     <div class="modal-info">
       <p class="eyebrow eyebrow-dark" data-pm-kind></p>
       <h2 id="pm-title" data-pm-name></h2>
@@ -164,6 +166,15 @@
     <span>Политика конфиденциальности</span>
   </div>
 </footer>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <div class="lightbox-shade" data-close-lightbox></div>
+  <figure class="lightbox-stage" role="dialog" aria-modal="true" aria-label="Просмотр фото">
+    <button class="icon-btn lightbox-x" type="button" data-close-lightbox aria-label="Закрыть"><svg><use href="#i-close"/></svg></button>
+    <img data-lb-img src="" alt="">
+    <figcaption data-lb-cap></figcaption>
+  </figure>
+</div>
 
 <div class="drawer-shade" data-close-cart></div>
 <aside class="drawer" id="cart" aria-label="Корзина" aria-hidden="true">
