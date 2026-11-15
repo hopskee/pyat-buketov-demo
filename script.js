@@ -61,7 +61,7 @@
   var hits = $("[data-hits]");
   if (hits) {
     hits.innerHTML = ["autumn-basket", "berry-box", "dahlia-garden", "kristina-coat", "coral-bouquet", "dahlia-orange"]
-      .map(function (id) { return card(byId(id), true); }).join("");
+      .map(function (id) { return card(byId(id), true).replace('class="card reveal"', 'class="card"'); }).join("");
   }
 
   var grid = $("[data-catalog]");
@@ -197,7 +197,16 @@
 
   /* ---------- header on scroll ---------- */
   var header = $(".header");
-  function onScroll() { header.classList.toggle("is-scrolled", window.scrollY > 10); }
+  var scrolled = null, ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      var s = window.scrollY > 10;
+      if (s !== scrolled) { scrolled = s; header.classList.toggle("is-scrolled", s); }
+    });
+  }
   window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
 
   /* ---------- reveal ---------- */
