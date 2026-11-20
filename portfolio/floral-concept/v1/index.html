@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Тихий сад — цветочное ателье</title>
+  <meta name="description" content="Вымышленное цветочное ателье «Тихий сад». Портфолио-концепт: сезонные букеты, демонстрационные цены, заказ никуда не отправляется.">
+  <meta name="theme-color" content="#2E2925">
+  <link rel="icon" href="assets/mark.svg">
+  <link rel="stylesheet" href="css/atelier.css">
+</head>
+<body class="atelier">
+  <a class="skip" href="#main">К содержанию</a>
+  <header class="top">
+    <a class="mark" href="index.html" aria-label="Тихий сад — на главную">
+      <svg width="28" height="32" viewBox="0 0 28 32" aria-hidden="true">
+        <path d="M14 30 V10" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M14 16c0 0-8-1.5-8-6 4 .2 8 3.2 8 6Z" fill="currentColor"/>
+        <path d="M14 20c0 0 8-2 8-7-4 .2-8 3.6-8 7Z" fill="currentColor"/>
+      </svg>
+      <span>
+        <span class="mark-name">тихий сад</span>
+        <span class="mark-note">портфолио · концепт</span>
+      </span>
+    </a>
+    <div class="top-end">
+      <nav class="nav" aria-label="Разделы">
+        <a href="catalog.html">Каталог</a>
+        <a class="wide" href="#atelier">Ателье</a>
+        <a class="wide" href="#order">Заказ</a>
+      </nav>
+      <button class="bag" type="button" data-open-cart data-cart-label aria-label="Корзина, пока пусто">Корзина <b data-cart-count>0</b></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <figure class="hero-photo">
+        <img
+          src="assets/images/roses-1600.jpg"
+          srcset="assets/images/roses-640.jpg 640w, assets/images/roses-960.jpg 960w, assets/images/roses-1600.jpg 1600w, assets/images/roses-1800.jpg 1800w"
+          sizes="(max-width: 800px) 100vw, 58vw"
+          width="1600"
+          height="1200"
+          alt="Плотные пыльные розы: тёплые розовые лепестки крупным планом"
+          fetchpriority="high"
+          decoding="async">
+        <figcaption>Пыльная роза</figcaption>
+      </figure>
+      <div class="hero-copy">
+        <p class="eyebrow">Цветочное ателье</p>
+        <h1 id="hero-title"><span>Букет</span> <span>без</span> <span>спешки</span></h1>
+        <p class="lead">Сезонные цветы с длинным стеблем и спокойным цветом. Пионы, тюльпаны, ранункулюсы и гортензия.</p>
+        <a class="btn" href="catalog.html">Смотреть каталог</a>
+        <p class="fine">Цены в каталоге — демонстрационные. Заказ никуда не отправляется.</p>
+      </div>
+    </section>
+
+    <ul class="index">
+      <li><span>01</span><b>Сезон</b><p>Берём то, что хорошо стоит сегодня, а не круглый год одно и то же.</p></li>
+      <li><span>02</span><b>Сбор</b><p>Каждый стебель отдельно. Без конвейера и одинаковых шаров.</p></li>
+      <li><span>03</span><b>Вода</b><p>Свежий срез и чистая ваза. Цветку нужен воздух между головами.</p></li>
+      <li><span>04</span><b>Экран</b><p>Корзина этой страницы никуда не уходит. Это демонстрация.</p></li>
+    </ul>
+
+    <section class="section" id="atelier">
+      <div class="wrap">
+        <figure class="feature-photo">
+          <img
+            src="assets/images/peonies-tall-960.jpg"
+            srcset="assets/images/peonies-tall-640.jpg 640w, assets/images/peonies-tall-960.jpg 960w, assets/images/peonies-tall-1400.jpg 1400w"
+            sizes="(max-width: 800px) 100vw, 1200px"
+            width="1400"
+            height="1050"
+            alt="Белые пионы в широкой зелёной композиции"
+            style="object-position: 62% 40%"
+            loading="lazy"
+            decoding="async">
+        </figure>
+        <div class="feature-grid">
+          <div>
+            <p class="eyebrow">Из ателье</p>
+            <h2>Тихая ветвь</h2>
+            <p class="lead">Белые пионы, мелкие зонтики и тёмная зелень. Композиция широкая: цветам оставлен воздух.</p>
+            <p class="price">6&nbsp;800&nbsp;₽ <small>демонстрация</small></p>
+            <p><a class="btn" href="product.html?id=tihaya-vetv">Открыть сбор</a></p>
+          </div>
+          <p class="pull">Пиону нужен воздух между головами, а не плотная шапка.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="macro" aria-label="Крупные планы">
+      <figure>
+        <img
+          src="assets/images/dahlia-960.jpg"
+          srcset="assets/images/dahlia-640.jpg 640w, assets/images/dahlia-960.jpg 960w, assets/images/dahlia-1400.jpg 1400w"
+          sizes="(max-width: 800px) 100vw, 62vw"
+          width="1400"
+          height="933"
+          alt="Крупный план розового георгина, слои лепестков"
+          loading="lazy"
+          decoding="async">
+        <figcaption>Георгин, крупный план</figcaption>
+      </figure>
+      <figure>
+        <img
+          src="assets/images/peony-close-960.jpg"
+          srcset="assets/images/peony-close-640.jpg 640w, assets/images/peony-close-960.jpg 960w, assets/images/peony-close-1400.jpg 1400w"
+          sizes="(max-width: 800px) 100vw, 34vw"
+          width="1400"
+          height="932"
+          alt="Край лепестков розового пиона"
+          style="object-position: 70% 50%"
+          loading="lazy"
+          decoding="async">
+        <figcaption>Пион, край лепестка</figcaption>
+      </figure>
+    </div>
+
+    <section class="section" style="padding-top: 0">
+      <div class="wrap pair">
+        <div>
+          <p class="eyebrow">Каталог</p>
+          <h2>Восемь сборов</h2>
+          <p class="lead">Можно искать по цветку, откладывать в корзину и менять количество. Всё остаётся в этом браузере.</p>
+          <p><a class="btn" href="catalog.html">Весь каталог</a></p>
+        </div>
+        <article class="card">
+          <a class="card-photo" href="product.html?id=olivkovyi-shar">
+            <img src="assets/images/hydrangea-960.jpg" srcset="assets/images/hydrangea-640.jpg 640w, assets/images/hydrangea-960.jpg 960w, assets/images/hydrangea-1400.jpg 1400w" sizes="(max-width: 800px) 100vw, 30vw" width="960" height="720" alt="Гортензия с зелёным краем и пыльной розовой серединой" loading="lazy" decoding="async">
+          </a>
+          <p class="kind">Монобукет</p>
+          <h3><a href="product.html?id=olivkovyi-shar">Оливковый шар</a></h3>
+          <div class="card-foot"><span class="price">6&nbsp;100&nbsp;₽ <small>демо</small></span><a class="btn btn-small" href="product.html?id=olivkovyi-shar">Открыть</a></div>
+        </article>
+        <article class="card">
+          <a class="card-photo" href="product.html?id=krasnaya-tishina">
+            <img src="assets/images/tulips-red-960.jpg" srcset="assets/images/tulips-red-640.jpg 640w, assets/images/tulips-red-960.jpg 960w, assets/images/tulips-red-1400.jpg 1400w" sizes="(max-width: 800px) 100vw, 30vw" width="960" height="1440" alt="Красные тюльпаны в плетёной корзине" style="object-position: 50% 34%" loading="lazy" decoding="async">
+          </a>
+          <p class="kind">Букет</p>
+          <h3><a href="product.html?id=krasnaya-tishina">Красная тишина</a></h3>
+          <div class="card-foot"><span class="price">5&nbsp;200&nbsp;₽ <small>демо</small></span><a class="btn btn-small" href="product.html?id=krasnaya-tishina">Открыть</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="ledger" id="order">
+      <div class="wrap">
+        <p class="eyebrow">Как устроена демонстрация</p>
+        <h2>Заказ остаётся на экране</h2>
+        <ol class="steps">
+          <li><span>01</span><h3>Выбор</h3><p>Откройте карточку сбора — у каждого свой адрес.</p></li>
+          <li><span>02</span><h3>Количество</h3><p>Прибавьте или уберите стебли в корзине.</p></li>
+          <li><span>03</span><h3>Итог</h3><p>Сумма считается здесь и никуда не уходит.</p></li>
+          <li><span>04</span><h3>Финиш</h3><p>Кнопка в корзине не отправляет заказ и не просит имя.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <figure class="garden">
+      <img
+        src="assets/images/peonies-garden-960.jpg"
+        srcset="assets/images/peonies-garden-640.jpg 640w, assets/images/peonies-garden-960.jpg 960w, assets/images/peonies-garden-1400.jpg 1400w"
+        sizes="100vw"
+        width="1400"
+        height="969"
+        alt="Розовые пионы на кусте в саду"
+        loading="lazy"
+        decoding="async">
+      <figcaption class="wrap">Пионы на ветке. Открытая фотография, не работа ателье.</figcaption>
+    </figure>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <p class="mark-name">тихий сад</p>
+        <p>Вымышленное цветочное ателье. Концепт для портфолио, не магазин и не чей-то действующий салон.</p>
+      </div>
+      <nav aria-label="Разделы в подвале">
+        <a href="index.html">Главная</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="product.html?id=tihaya-vetv">Тихая ветвь</a>
+        <a href="#order">Демонстрация заказа</a>
+      </nav>
+      <p>Цены демонстрационные. Корзина хранит только номера сборов в этом браузере. Имя, телефон и оплата не собираются.</p>
+    </div>
+    <p class="credits">Фотографии: Jebulon, Gerda Arendt, AlmightyWorm, Eric Kilby, Nathanieljoyce, George E. Koronaios, Downtowngal, Ruth Hartnup, Cliomd1, Salicyna, W.carter — Wikimedia Commons, лицензии CC BY, CC BY-SA и CC0. Шрифты Cormorant Garamond и Manrope, OFL.</p>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="js/data.js"></script>
+  <script src="js/atelier.js"></script>
+</body>
+</html>
