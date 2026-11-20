@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Сбор — Тихий сад</title>
+  <meta name="description" content="Карточка демонстрационного сбора ателье «Тихий сад». Количество и корзина остаются в браузере.">
+  <meta name="theme-color" content="#2E2925">
+  <link rel="icon" href="assets/mark.svg">
+  <link rel="stylesheet" href="css/atelier.css">
+</head>
+<body class="atelier">
+  <a class="skip" href="#main">К содержанию</a>
+  <header class="top">
+    <a class="mark" href="index.html" aria-label="Тихий сад — на главную">
+      <svg width="28" height="32" viewBox="0 0 28 32" aria-hidden="true">
+        <path d="M14 30 V10" fill="none" stroke="currentColor" stroke-width="1.2"/>
+        <path d="M14 16c0 0-8-1.5-8-6 4 .2 8 3.2 8 6Z" fill="currentColor"/>
+        <path d="M14 20c0 0 8-2 8-7-4 .2-8 3.6-8 7Z" fill="currentColor"/>
+      </svg>
+      <span>
+        <span class="mark-name">тихий сад</span>
+        <span class="mark-note">портфолио · концепт</span>
+      </span>
+    </a>
+    <div class="top-end">
+      <nav class="nav" aria-label="Разделы">
+        <a href="catalog.html">Каталог</a>
+        <a class="wide" href="index.html#atelier">Ателье</a>
+        <a class="wide" href="index.html#order">Заказ</a>
+      </nav>
+      <button class="bag" type="button" data-open-cart data-cart-label aria-label="Корзина, пока пусто">Корзина <b data-cart-count>0</b></button>
+    </div>
+  </header>
+  <main id="main" class="wrap" data-product>
+    <p class="lead">Открываем карточку…</p>
+  </main>
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <p class="mark-name">тихий сад</p>
+        <p>Вымышленное цветочное ателье. Концепт для портфолио, не магазин.</p>
+      </div>
+      <nav aria-label="Разделы в подвале">
+        <a href="index.html">Главная</a>
+        <a href="catalog.html">Каталог</a>
+        <a href="index.html#order">Демонстрация заказа</a>
+      </nav>
+      <p>Демонстрация, заказ не отправляется. Оплаты на странице нет.</p>
+    </div>
+    <p class="credits">Фото: Wikimedia Commons, CC BY / CC BY-SA / CC0. Подписи авторов — на главной.</p>
+  </footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="js/data.js"></script>
+  <script src="js/atelier.js"></script>
+</body>
+</html>
